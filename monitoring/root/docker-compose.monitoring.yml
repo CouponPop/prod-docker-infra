@@ -37,13 +37,7 @@ services:
     container_name: couponpop-mysqld-exporter
     restart: unless-stopped
     environment:
-      MYSQLD_EXPORTER_DSN: ${MYSQLD_EXPORTER_USERNAME}:${MYSQLD_EXPORTER_PASSWORD}@(${DB_HOST}:${DB_PORT})/
-    command:
-      - --collect.global_status
-      - --collect.engine_innodb_status
-      - --collect.info_schema.userstats
-      - --collect.perf_schema.tableiowaits
-      - --collect.perf_schema.file_events
+      MYSQLD_EXPORTER_DSN: ${MYSQLD_EXPORTER_USERNAME}:${MYSQLD_EXPORTER_PASSWORD}@tcp(${DB_HOST}:${DB_PORT})/
     ports:
       - "${MYSQLD_EXPORTER_PORT}:9104"
 
