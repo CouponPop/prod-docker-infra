@@ -1,0 +1,53 @@
+services:
+  prometheus:
+    image: prom/prometheus
+    container_name: couponpop-prometheus
+    restart: unless-stopped
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=7d
+      - --web.enable-lifecycle
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml # (1) 설정 파일
+      - /data/prometheus:/prometheus                   # (2) 데이터 저장 (EBS 볼륨)
+    ports:
+      - "${PROMETHEUS_PORT}:9090"
+    depends_on:
+      - mysqld_exporter
+
+  grafana:
+    image: grafana/grafana
+    container_name: couponpop-grafana
+    restart: unless-stopped
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - /data/grafana:/var/lib/grafana                  # (1) 데이터 저장 (EBS 볼륨)
+      - ./grafana/provisioning:/etc/grafana/provisioning # (2) 설정 파일
+      - ./grafana/dashboards:/var/lib/grafana/dashboards # (3) 대시보드 파일
+    ports:
+      - "${GRAFANA_PORT}:3000"
+    depends_on:
+      - prometheus
+
+  mysqld_exporter:
+    image: prom/mysqld-exporter
+    container_name: couponpop-mysqld-exporter
+    restart: unless-stopped
+    environment:
+      DATA_SOURCE_NAME: ${MYSQLD_EXPORTER_USERNAME}:${MYSQLD_EXPORTER_PASSWORD}@tcp(${DB_HOST}:${DB_PORT})/
+    command:
+      - --collect.global_status
+      - --collect.engine_innodb_status
+      - --collect.info_schema.userstats
+      - --collect.perf_schema.tableiowaits
+      - --collect.perf_schema.file_events
+    ports:
+      - "${MYSQLD_EXPORTER_PORT}:9104"
+
+# (중요) Docker 명명 볼륨 정의를 제거합니다.
+# volumes:
+#   prometheus-data:
+#   grafana-data:
