@@ -38,7 +38,7 @@ services:
     restart: unless-stopped
     command:
       - --mysqld.username=${MYSQLD_EXPORTER_USERNAME}
-      - --mysqld.password=${MYSQLD_EXPORTER_PASSWORD}
+      - --mysqld.pass=${MYSQLD_EXPORTER_PASSWORD}
       - --mysqld.address=${DB_HOST}:${DB_PORT}
       # 원하는 수집 항목 유지
       - --collect.global_status
