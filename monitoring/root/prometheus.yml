@@ -13,4 +13,9 @@ scrape_configs:
     static_configs:
       - targets: [ "mysqld_exporter:9104" ]
 
-  # 3. Fargate 서비스 -> cloudwatch로 대체
+  # 3. Fargate 서비스
+  - job_name: 'fargate-services'
+    file_sd_configs: # 파일 기반 서비스 디스커버리 사용
+      - files:
+          - /etc/prometheus/targets/targets.json # 공유한 볼륨 경로
+    metrics_path: /actuator/prometheus # Spring Boot Actuator의 기본 경로

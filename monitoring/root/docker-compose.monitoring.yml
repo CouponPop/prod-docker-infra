@@ -11,10 +11,23 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml # (1) 설정 파일
       - /data/prometheus:/prometheus                   # (2) 데이터 저장 (EBS 볼륨)
+      - ./targets:/etc/prometheus/targets # targets.json 파일을 공유할 볼륨 추가
     ports:
       - "${PROMETHEUS_PORT}:9090"
     depends_on:
       - mysqld_exporter
+      - ecs_discovery
+
+  ecs_discovery:
+    image: teralytics/prometheus-ecs-discovery:latest
+    container_name: couponpop-ecs-discovery
+    restart: unless-stopped
+    volumes:
+      - ./targets:/etc/prometheus/targets # Prometheus와 targets.json 파일 공유
+    environment:
+      - AWS_REGION=ap-northeast-2 # (필수) 조회할 AWS 리전
+      - DISCOVERY_INTERVAL=60 # (선택) 조회 주기
+
 
   grafana:
     image: grafana/grafana
