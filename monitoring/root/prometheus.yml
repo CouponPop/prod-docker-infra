@@ -3,7 +3,17 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
-  # 1. Fargate 서비스 자동 탐지
+  # 1. Prometheus ec2 모니터링
+  - job_name: "prometheus-self"
+    static_configs:
+      - targets: [ "localhost:9090" ]
+
+  # 2. Docker Compose 내부의 mysqld_exporter
+  - job_name: "mysql-exporter"
+    static_configs:
+      - targets: [ "mysqld_exporter:9104" ]
+
+  # 3. Fargate 서비스 자동 탐지
   - job_name: 'fargate-services'
     metrics_path: '/actuator/prometheus'
     ecs_sd_configs:
@@ -21,13 +31,3 @@ scrape_configs:
         target_label: job
         regex: (.*)-task-definition
         replacement: '$1'
-
-  # 2. Docker Compose 내부의 mysqld_exporter
-  - job_name: "mysql-exporter"
-    static_configs:
-      - targets: [ "mysqld_exporter:9104" ]
-
-  # 3. Prometheus ec2 모니터링
-  - job_name: "prometheus-self"
-    static_configs:
-      - targets: [ "localhost:9090" ]
