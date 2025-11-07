@@ -1,0 +1,13 @@
+apiVersion: 1
+
+datasources:
+  - name: AWS-CloudWatch-Fargate
+    type: cloudwatch
+    uid: cloudwatch_fargate_metrics
+    access: proxy # EC2의 IAM 역할을 사용합니다
+    isDefault: true # 이 데이터 소스를 기본값으로 설정
+    jsonData:
+      authType: default # Role-Grafana-CloudWatch-Read 역할 사용
+      defaultRegion: ap-northeast-2
+      # Fargate가 메트릭을 PUSH한 네임스페이스
+      customMetricsNamespaces: 'CouponPop/Fargate'

@@ -13,21 +13,4 @@ scrape_configs:
     static_configs:
       - targets: [ "mysqld_exporter:9104" ]
 
-  # 3. Fargate 서비스 자동 탐지
-  - job_name: 'fargate-services'
-    metrics_path: '/actuator/prometheus'
-    ecs_sd_configs:
-      - region: ap-northeast-2
-        clusters:
-          - couponpop-ecs-cluster # Fargate 클러스터 이름
-        port: 8080
-    relabel_configs:
-      # RUNNING 상태인 Task만 스크래핑
-      - source_labels: [ __meta_ecs_task_last_status ]
-        action: keep
-        regex: RUNNING
-      # Task Definition Family에서 '-task-definition' 부분을 제거하고 'job' 레이블로 사용
-      - source_labels: [ __meta_ecs_task_definition_family ]
-        target_label: job
-        regex: (.*)-task-definition
-        replacement: '$1'
+  # 3. Fargate 서비스 -> cloudwatch로 대체
