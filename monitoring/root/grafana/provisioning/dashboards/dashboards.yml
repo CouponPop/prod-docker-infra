@@ -1,0 +1,12 @@
+# Grafana가 기동될 때 대시보드 파일을 자동으로 읽도록 하는 설정 파일
+apiVersion: 1 # 프로비저닝 설정 스키마 버전
+
+providers:
+  - name: "couponpop-dashboards"
+    orgId: 1 # 조직 ID
+    folder: "" # 대시보드 폴더 이름 (빈 문자열은 기본 폴더)
+    type: file # 파일 시스템에서 대시보드 로드
+    disableDeletion: false # 대시보드 삭제 허용
+    editable: true # 대시보드 편집 허용
+    options:
+      path: /var/lib/grafana/dashboards # 대시보드 JSON 파일 경로

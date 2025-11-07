@@ -1,0 +1,11 @@
+# Grafana가 시작될 때 데이터소스, 대시보드, 알람 등 설정을 자동으로 등록하도록 해 주는 설정 파일
+apiVersion: 1
+
+datasources:
+  - name: Prometheus # 데이터소스 이름
+    type: prometheus # 데이터소스 타입
+    access: proxy # 프록시 모드로 접근
+    url: http://prometheus:9090 # Prometheus 서버 URL
+    isDefault: true # 기본 데이터소스로 설정
+    jsonData:
+      httpMethod: POST # HTTP 메서드 설정
