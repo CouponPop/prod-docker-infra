@@ -38,7 +38,6 @@ services:
     restart: unless-stopped
     command:
       - --mysqld.username=${MYSQLD_EXPORTER_USERNAME}
-      - --mysqld.pass=${MYSQLD_EXPORTER_PASSWORD}
       - --mysqld.address=${DB_HOST}:${DB_PORT}
       # 원하는 수집 항목 유지
       - --collect.global_status
@@ -46,7 +45,8 @@ services:
       - --collect.info_schema.userstats
       - --collect.perf_schema.tableiowaits
       - --collect.perf_schema.file_events
-    # environment 섹션은 command에서 이미 모두 사용하므로, 이 경우 불필요하여 제거합니다.
+    environment:
+      MYSQLD_EXPORTER_PASSWORD: ${MYSQLD_EXPORTER_PASSWORD}
     ports:
       - "${MYSQLD_EXPORTER_PORT}:9104"
 
