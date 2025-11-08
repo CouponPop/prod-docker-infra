@@ -11,23 +11,24 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml # (1) 설정 파일
       - /data/prometheus:/prometheus                   # (2) 데이터 저장 (EBS 볼륨)
-      - ./targets:/etc/prometheus/targets # targets.json 파일을 공유할 볼륨 추가
+      - ./targets:/etc/prometheus/targets # CW 에이전트와 공유
     ports:
       - "${PROMETHEUS_PORT}:9090"
     depends_on:
       - mysqld_exporter
-      - ecs_discovery
 
-  ecs_discovery:
-    image: teralytics/prometheus-ecs-discovery:latest
-    container_name: couponpop-ecs-discovery
+  cloudwatch-agent:
+    image: amazon/cloudwatch-agent:latest
+    container_name: couponpop-cw-agent
     restart: unless-stopped
+    command: [ "amazon-cloudwatch-agent", "-config", "/etc/cwagent.json" ] # 1단계에서 만든 설정 파일을 컨테이너 내부로 마운트
     volumes:
-      - ./targets:/etc/prometheus/targets # Prometheus와 targets.json 파일 공유
+      - ./targets:/etc/prometheus/targets # 1. Prometheus와 SD 결과 파일을 공유할 볼륨
+      - ./cw-agent-config.json:/etc/cwagent.json # 2. CW 에이전트 설정 파일을 마운트
     environment:
       - AWS_REGION=ap-northeast-2 # (필수) 조회할 AWS 리전
-      - DISCOVERY_INTERVAL=60 # (선택) 조회 주기
-
+    # (매우 중요) EC2 인스턴스 프로필(IAM 역할)을 사용해야 하므로,
+    # 이 컨테이너가 ECS/EC2 API를 호출할 권한이 필요
 
   grafana:
     image: grafana/grafana
@@ -62,8 +63,3 @@ services:
       MYSQLD_EXPORTER_PASSWORD: ${MYSQLD_EXPORTER_PASSWORD}
     ports:
       - "${MYSQLD_EXPORTER_PORT}:9104"
-
-# (중요) Docker 명명 볼륨 정의를 제거합니다.
-# volumes:
-#   prometheus-data:
-#   grafana-data:

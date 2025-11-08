@@ -15,7 +15,16 @@ scrape_configs:
 
   # 3. Fargate 서비스
   - job_name: 'fargate-services'
-    file_sd_configs: # 파일 기반 서비스 디스커버리 사용
+    file_sd_configs:
       - files:
-          - /etc/prometheus/targets/targets.json # 공유한 볼륨 경로
-    metrics_path: /actuator/prometheus # Spring Boot Actuator의 기본 경로
+          - /etc/prometheus/targets/ecs_auto_sd.yaml # CW Agent의 .yaml 파일을 바라보도록 설정
+    #    metrics_path: /actuator/prometheus # 이 부분은 서비스에서 레이블로 덮어쓸 수 있음
+
+    # (필수) file_sd로 가져온 레이블을 Prometheus가 사용하도록 재설정
+    relabel_configs:
+      - source_labels: [ __meta_ecs_container_name ]
+        target_label: container_name
+      - source_labels: [ job ] # cw-agent-config.json의 "sd_job_name_label"
+        target_label: job
+      - source_labels: [ __metrics_path__ ] # cw-agent-config.json의 "sd_metrics_path_label"
+        target_label: __metrics_path__
