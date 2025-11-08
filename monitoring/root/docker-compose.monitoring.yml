@@ -14,6 +14,8 @@ services:
       - ./targets:/etc/prometheus/targets # ecs_discovery와 공유
     ports:
       - "${PROMETHEUS_PORT}:9090"
+    user: "65534" # nobody의 UID
+    init: true # 컨테이너 시작 시 init 프로세스를 사용
     depends_on:
       - mysqld_exporter
       - ecs_discovery
@@ -44,6 +46,7 @@ services:
       - ./grafana/dashboards:/var/lib/grafana/dashboards # (3) 대시보드 파일
     ports:
       - "${GRAFANA_PORT}:3000"
+    user: "472" # Grafana의 기본 UID
     depends_on:
       - prometheus
 
