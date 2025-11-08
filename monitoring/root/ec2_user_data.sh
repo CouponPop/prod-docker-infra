@@ -115,8 +115,7 @@ chown -R 65534:65534 $CONFIG_DIR/targets
 echo "Targets directory created and ownership set to nobody (65534)." >> /var/log/cloud-init-output.log
 
 
-# 9. [CRITICAL FIX] Service Connect 프록시 필터링 규칙 삽입
-# GitHub에서 가져온 prometheus.yml에 릴레이블링 규칙을 추가하여 프록시 대상 제거
+# 9. Service Connect 프록시 필터링 규칙 삽입 (prometheus.yml 수정)
 echo "Applying Prometheus Service Connect relabeling fix..." >> /var/log/cloud-init-output.log
 PROM_CONFIG="$CONFIG_DIR/prometheus.yml"
 if ! grep -q "relabel_configs" "$PROM_CONFIG"; then
@@ -128,12 +127,22 @@ else
 fi
 
 
-# 10. Docker Compose 실행
+# 10. Docker Compose 실행 전 ECR 로그인
+echo "Logging into ECR..." >> /var/log/cloud-init-output.log
+# AWS CLI를 사용하여 ECR 로그인 토큰을 가져와 Docker에 전달합니다.
+aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin 802318301972.dkr.ecr.ap-northeast-2.amazonaws.com
+if [ $? -ne 0 ]; then
+    echo "FATAL: ECR login failed. Check IAM permissions for ecr:GetAuthorizationToken." >> /var/log/cloud-init-output.log
+    exit 1
+fi
+
+
+# 11. Docker Compose 실행
 echo "Starting Docker Compose stack..." >> /var/log/cloud-init-output.log
 docker compose -f $CONFIG_DIR/docker-compose.monitoring.yml up -d
 
 
-# 11. (ALB 등록) Target Group IP 등록
+# 12. (ALB 등록) Target Group IP 등록
 echo "Registering Private IP to Target Groups..." >> /var/log/cloud-init-output.log
 IMDS_TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
 for i in {1..15}; do
@@ -149,7 +158,7 @@ aws elbv2 register-targets --target-group-arn $GRAFANA_TG_ARN --targets Id=$PRIV
 aws elbv2 register-targets --target-group-arn $PROMETHEUS_TG_ARN --targets Id=$PRIVATE_IP,Port=9090 --region $AWS_REGION
 echo "Target registration complete for $PRIVATE_IP." >> /var/log/cloud-init-output.log
 
-# 12. 임시 Clone 디렉토리 삭제
+# 13. 임시 Clone 디렉토리 삭제
 rm -rf $TEMP_CLONE_DIR
 echo "Removed temporary clone directory." >> /var/log/cloud-init-output.log
 
