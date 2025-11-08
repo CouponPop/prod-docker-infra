@@ -1,0 +1,65 @@
+services:
+  jenkins:
+    #    image: jenkins/jenkins:lts-jdk17 # LTS 버전 (장기 지원)
+    build:
+      context: . # 현재 디렉토리
+      dockerfile: Dockerfile.jenkins # custom한 Dockerfile 사용
+    container_name: jenkins
+    restart: unless-stopped # 컨테이너 재시작 정책
+    privileged: true # Docker in Docker (컨테이너 내에서 Docker 명령 실행)
+    user: root # 컨테이너 내에서 root 권한으로 실행 (일부 플러그인 필요)
+    ports:
+      - "8080:8080"
+    volumes:
+      - jenkins_home:/var/jenkins_home # Jenkins 데이터 영구 저장
+      - /var/run/docker.sock:/var/run/docker.sock # Docker 데몬 소켓 마운트 (컨테이너 내에서 Docker 사용)
+      - /usr/bin/docker:/usr/bin/docker # Docker 실행 파일 마운트
+    environment:
+      - JAVA_OPTS=-Xms512m -Xmx1024m -Duser.timezone=Asia/Seoul # Jenkins JVM 메모리 설정 (EC2 사양에 따라 조정)
+    networks:
+      - devops-net
+
+  sonarqube:
+    image: sonarqube:lts-community
+    container_name: sonarqube
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+    environment:
+      - SONARQUBE_JDBC_URL=jdbc:postgresql://db:5432/sonarqube # DB 연결 정보
+      - SONARQUBE_JDBC_USERNAME=sonar
+      - SONARQUBE_JDBC_PASSWORD=sonar_password
+      - SONAR_JVM_OPTS=-Duser.timezone=Asia/Seoul
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data # 데이터 영구 저장
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    depends_on:
+      - postgres
+    networks:
+      - devops-net
+
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=sonarqube
+      - POSTGRES_USER=sonar
+      - POSTGRES_PASSWORD=sonar_password
+      - TZ=Asia/Seoul
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # DB 데이터 영구 저장
+    networks:
+      - devops-net
+
+volumes:
+  jenkins_home:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+  postgres_data:
+
+networks:
+  devops-net:
+    driver: bridge

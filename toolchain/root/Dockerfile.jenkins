@@ -1,0 +1,19 @@
+# ~/toolchain/Dockerfile.jenkins
+
+# 1. 기본 Jenkins 이미지 사용
+FROM jenkins/jenkins:lts-jdk17
+
+# 2. root 유저로 전환 (apt-get 설치 권한)
+USER root
+
+# 3. AWS CLI 설치 (Debian/Ubuntu 기반)
+RUN apt-get update && \
+    apt-get install -y awscli && \
+    apt-get clean
+
+# 4. (선택 사항) Docker 설치 (DIND)
+# RUN apt-get install -y docker.io (하지만 호스트의 docker.sock을 마운트하므로 불필요)
+
+# 5. 다시 jenkins 유저로 전환 (보안상 권장)
+#    (단, docker-compose.yml에서 user: root를 사용 중이므로 이 단계는 생략)
+# USER jenkins
