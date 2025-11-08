@@ -11,24 +11,25 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml # (1) 설정 파일
       - /data/prometheus:/prometheus                   # (2) 데이터 저장 (EBS 볼륨)
-      - ./targets:/etc/prometheus/targets # CW 에이전트와 공유
+      - ./targets:/etc/prometheus/targets # ecs_discovery와 공유
     ports:
       - "${PROMETHEUS_PORT}:9090"
     depends_on:
       - mysqld_exporter
+      - ecs_discovery
 
-  cloudwatch-agent:
-    image: amazon/cloudwatch-agent:latest
-    container_name: couponpop-cw-agent
+  ecs_discovery:
+    image: 802318301972.dkr.ecr.ap-northeast-2.amazonaws.com/couponpop/custom-ecs-discovery:latest
+    container_name: couponpop-ecs-discovery
     restart: unless-stopped
-    command: [ "amazon-cloudwatch-agent", "-config", "/etc/cwagent.json" ] # 1단계에서 만든 설정 파일을 컨테이너 내부로 마운트
-    volumes:
-      - ./targets:/etc/prometheus/targets # 1. Prometheus와 SD 결과 파일을 공유할 볼륨
-      - ./cw-agent-config.json:/etc/cwagent.json # 2. CW 에이전트 설정 파일을 마운트
     environment:
-      - AWS_REGION=ap-northeast-2 # (필수) 조회할 AWS 리전
-    # (매우 중요) EC2 인스턴스 프로필(IAM 역할)을 사용해야 하므로,
-    # 이 컨테이너가 ECS/EC2 API를 호출할 권한이 필요
+      - AWS_REGION=ap-northeast-2
+    command:
+      - -config.cluster=couponpop-ecs-cluster
+      - -config.write-to=/output/ecs_file_sd.yml # prometheus와 공유
+      - -config.scrape-interval=1m0s
+    volumes:
+      - ./targets:/output # 호스트의 ./targets를 컨테이너 내부의 /output에 매핑
 
   grafana:
     image: grafana/grafana
@@ -53,7 +54,7 @@ services:
     command:
       - --mysqld.username=${MYSQLD_EXPORTER_USERNAME}
       - --mysqld.address=${DB_HOST}:${DB_PORT}
-      # 원하는 수집 항목 유지
+      # 원하는 수집 항목을 로컬과 동일하게 유지
       - --collect.global_status
       - --collect.engine_innodb_status
       - --collect.info_schema.userstats

@@ -13,18 +13,13 @@ scrape_configs:
     static_configs:
       - targets: [ "mysqld_exporter:9104" ]
 
-  # 3. Fargate 서비스
+  # 3. Fargate 서비스 (teralytics/prometheus-ecs-discovery 사용)
   - job_name: 'fargate-services'
     file_sd_configs:
       - files:
-          - /etc/prometheus/targets/ecs_auto_sd.yaml # CW Agent의 .yaml 파일을 바라보도록 설정
-    #    metrics_path: /actuator/prometheus # 이 부분은 서비스에서 레이블로 덮어쓸 수 있음
-
-    # (필수) file_sd로 가져온 레이블을 Prometheus가 사용하도록 재설정
-    relabel_configs:
-      - source_labels: [ __meta_ecs_container_name ]
-        target_label: container_name
-      - source_labels: [ job ] # cw-agent-config.json의 "sd_job_name_label"
-        target_label: job
-      - source_labels: [ __metrics_path__ ] # cw-agent-config.json의 "sd_metrics_path_label"
-        target_label: __metrics_path__
+          - '/etc/prometheus/targets/ecs_file_sd.yml' # Prometheus 컨테이너가 읽을 경로
+    metrics_path: /actuator/prometheuos
+    relabel_configs: # ECS 프록시 컨테이너 필터링을 위해 사용
+      - source_labels: [ container_name ]
+        regex: 'ecs-service-connect-.*' # 'ecs-service-connect-'로 시작하는 모든 컨테이너 이름을 필터링
+        action: drop # 해당 대상을 Targets 목록에서 삭제
