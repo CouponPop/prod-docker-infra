@@ -11,11 +11,12 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - jenkins_home:/var/jenkins_home # Jenkins 데이터 영구 저장
-      - /var/run/docker.sock:/var/run/docker.sock # Docker 데몬 소켓 마운트 (컨테이너 내에서 Docker 사용)
+      # ASG의 EBS 마운트 경로(/data)를 사용
+      - /data/jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock # Docker 데몬 소켓 마운트
       - /usr/bin/docker:/usr/bin/docker # Docker 실행 파일 마운트
     environment:
-      - JAVA_OPTS=-Xms512m -Xmx1024m -Duser.timezone=Asia/Seoul # Jenkins JVM 메모리 설정 (EC2 사양에 따라 조정)
+      - JAVA_OPTS=-Xms512m -Xmx1024m -Duser.timezone=Asia/Seoul
     networks:
       - devops-net
 
@@ -26,14 +27,16 @@ services:
     ports:
       - "9000:9000"
     environment:
-      - SONARQUBE_JDBC_URL=jdbc:postgresql://db:5432/sonarqube # DB 연결 정보
+      # 내부 서비스 이름 'postgres' 사용
+      - SONARQUBE_JDBC_URL=jdbc:postgresql://postgres:5432/sonarqube
       - SONARQUBE_JDBC_USERNAME=sonar
       - SONARQUBE_JDBC_PASSWORD=sonar_password
       - SONAR_JVM_OPTS=-Duser.timezone=Asia/Seoul
     volumes:
-      - sonarqube_data:/opt/sonarqube/data # 데이터 영구 저장
-      - sonarqube_extensions:/opt/sonarqube/extensions
-      - sonarqube_logs:/opt/sonarqube/logs
+      # ASG의 EBS 마운트 경로(/data)를 사용
+      - /data/sonarqube/data:/opt/sonarqube/data
+      - /data/sonarqube/extensions:/opt/sonarqube/extensions
+      - /data/sonarqube/logs:/opt/sonarqube/logs
     depends_on:
       - postgres
     networks:
@@ -49,16 +52,12 @@ services:
       - POSTGRES_PASSWORD=sonar_password
       - TZ=Asia/Seoul
     volumes:
-      - postgres_data:/var/lib/postgresql/data # DB 데이터 영구 저장
+      # ASG의 EBS 마운트 경로(/data)를 사용
+      - /data/postgres/data:/var/lib/postgresql/data
     networks:
       - devops-net
 
-volumes:
-  jenkins_home:
-  sonarqube_data:
-  sonarqube_extensions:
-  sonarqube_logs:
-  postgres_data:
+# Docker Named Volumes는 호스트의 Bind Mount로 대체되었으므로 삭제
 
 networks:
   devops-net:
