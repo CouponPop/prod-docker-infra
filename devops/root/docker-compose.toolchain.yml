@@ -10,6 +10,8 @@ services:
     user: root # 컨테이너 내에서 root 권한으로 실행 (일부 플러그인 필요)
     ports:
       - "8080:8080"
+    mem_limit: 2g                     # Jenkins 컨테이너의 RAM 사용을 2GB로 제한
+    memswap_limit: 4g                 # RAM(2GB) + Swap(2GB) = 총 4GB까지 사용 허용
     volumes:
       # ASG의 EBS 마운트 경로(/data)를 사용
       - /data/jenkins_home:/var/jenkins_home
