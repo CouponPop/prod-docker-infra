@@ -14,8 +14,8 @@ services:
       - ./targets:/etc/prometheus/targets # ecs_discovery와 공유
     ports:
       - "${PROMETHEUS_PORT}:9090"
-    user: "65534" # nobody의 UID
-    init: true # 컨테이너 시작 시 init 프로세스를 사용
+    entrypoint: [ "sh", "-c", "chown -R 65534:65534 /prometheus && /bin/prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --storage.tsdb.retention.time=7d --web.enable-lifecycle" ]
+    user: "root" # chown 명령을 실행하기 위해 root 권한으로 시작
     depends_on:
       - mysqld_exporter
       - ecs_discovery
@@ -46,7 +46,8 @@ services:
       - ./grafana/dashboards:/var/lib/grafana/dashboards # (3) 대시보드 파일
     ports:
       - "${GRAFANA_PORT}:3000"
-    user: "472" # Grafana의 기본 UID
+    entrypoint: [ "sh", "-c", "chown -R 472:472 /var/lib/grafana && /run.sh" ]
+    user: "root" # chown 명령을 실행하기 위해 root 권한으로 시작
     depends_on:
       - prometheus
 
