@@ -46,6 +46,13 @@ snap install aws-cli --classic
 ln -s /snap/bin/aws /usr/bin/aws 2>/dev/null
 echo "AWS CLI v2 and Docker installed." >> /var/log/cloud-init-output.log
 
+# Buildx 설치 확인 및 심볼릭 링크 생성 (Ubuntu/Snap 환경)
+# Docker-CE 설치 시 docker-buildx-plugin이 설치되지만, 경로 문제 해결을 위해 재확인합니다.
+if ! command -v docker-buildx > /dev/null 2>&1; then
+    echo "Attempting to link docker-buildx command..." >> /var/log/cloud-init-output.log
+    ln -s /usr/libexec/docker/cli-plugins/docker-buildx /usr/bin/docker-buildx 2>/dev/null
+fi
+
 # ==========================================================
 # 4GB 스왑 파일 생성 및 적용 (Jenkins 메모리 부족 대비)
 # ==========================================================
