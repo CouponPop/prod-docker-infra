@@ -1,0 +1,60 @@
+services:
+  elastic:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: elasticsearch
+    ports:
+      - 9200:9200 # 9200번 포트에서 Elasticsearch 실행
+    environment:
+      # 아래 설정은 개발/테스트 환경에서 간단하게 테스트하기 위한 옵션 (운영 환경에서는 설정하면 안 됨)
+      - discovery.type=single-node # 단일 노드 (지금은 알 필요 없음)
+      - xpack.security.enabled=false # 보안 설정
+      - xpack.security.http.ssl.enabled=false # 보안 설정
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - elk_network
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:8.17.4
+    container_name: logstash
+    ports:
+      - 9600:9600 # Logstash 모니터링 API
+    volumes:
+      - ../logstash/pipeline:/usr/share/logstash/pipeline
+      - ../logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    command: [ "sh", "-c", "logstash-plugin install logstash-input-cloudwatch && /usr/local/bin/docker-entrypoint" ]
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elastic:9200
+    depends_on:
+      - elastic
+    networks:
+      - elk_network
+
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.17.4 # 8.17.4 버전
+    container_name: kibana
+    ports:
+      - 5601:5601 # 5601번 포트에서 kibana 실행
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elastic:9200 # kibana가 통신할 Elasticsearch 주소 알려주기
+      - TZ=Asia/Seoul
+    depends_on:
+      - elastic
+    networks:
+      - elk_network
+
+volumes:
+  elasticsearch_data:
+
+networks:
+  elk_network:
+    driver: bridge
