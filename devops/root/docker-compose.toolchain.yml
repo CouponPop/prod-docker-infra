@@ -17,6 +17,7 @@ services:
       - /data/jenkins_home:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock # Docker 데몬 소켓 마운트
       - /usr/bin/docker:/usr/bin/docker # Docker 실행 파일 마운트
+      - /usr/libexec/docker/cli-plugins/docker-buildx:/root/.docker/cli-plugins/docker-buildx # 호스트의 buildx 플러그인을 컨테이너의 CLI 플러그인 디렉토리로 마운트
     environment:
       - JAVA_OPTS=-Xms512m -Xmx1024m -Duser.timezone=Asia/Seoul
     networks:
