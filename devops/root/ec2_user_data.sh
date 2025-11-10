@@ -126,6 +126,11 @@ if ls "$ACTUAL_DEVICE_NAME" 1> /dev/null 2>&1; then
 
     # 마운트 성공 후 하위 디렉토리 생성 (DevOps 툴체인 데이터 경로)
     echo "Creating persistent directories for DevOps tools..." >> /var/log/cloud-init-output.log
+
+    # Jenkins 임시 디렉토리 생성 및 권한 설정 추가
+    mkdir -p $MOUNT_POINT/jenkins_tmp
+    chown -R root:root $MOUNT_POINT/jenkins_tmp
+
     mkdir -p $MOUNT_POINT/jenkins_home
     mkdir -p $MOUNT_POINT/sonarqube/data
     mkdir -p $MOUNT_POINT/sonarqube/extensions
