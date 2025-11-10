@@ -1,0 +1,30 @@
+services:
+  rabbitmq:
+    image: rabbitmq:4.1.5-management
+    container_name: couponpop-rabbitmq
+    hostname: ${RABBITMQ_HOSTNAME}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    ports:
+      # 포트 기본값을 사용하도록 고정
+      - "5672:5672"
+      - "15672:15672"
+      - "15692:15692"
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      RABBITMQ_NODENAME: rabbit@${RABBITMQ_HOSTNAME}
+      RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE}
+
+      RABBITMQ_PLUGINS_ENABLE: rabbitmq_prometheus # 1. 플러그인 활성화
+      RABBITMQ_PROMETHEUS_TCP_PORT: 15692 # 2. 메트릭 포트 15692로 지정 (prometheus.tcp.port)
+      RABBITMQ_PROMETHEUS_RETURN_PER_OBJECT_METRICS: "true" # 3. 객체별 메트릭 활성화 (prometheus.return_per_object_metrics)
+    command: rabbitmq-server
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  rabbitmq-data:

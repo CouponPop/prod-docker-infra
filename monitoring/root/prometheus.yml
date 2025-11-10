@@ -23,3 +23,23 @@ scrape_configs:
       - source_labels: [ container_name ]
         regex: 'ecs-service-connect-.*' # 'ecs-service-connect-'로 시작하는 모든 컨테이너 이름을 필터링
         action: drop # 해당 대상을 Targets 목록에서 삭제
+
+  # 4. RabbitMQ
+  - job_name: 'rabbitmq'
+    metrics_path: /metrics
+    ec2_sd_configs:
+      - region: ap-northeast-2
+        port: 15692
+
+    relabel_configs: # 필터링 및 주소 설정
+      # 1단계: Role=rabbitmq 태그가 있는 인스턴스만 유지
+      - source_labels: [ __meta_ec2_tag_Role ]
+        regex: 'rabbitmq'
+        action: keep
+
+      # 2단계: AWS가 제공하는 프라이빗 IP(__meta_ec2_private_ip)를
+      #         Prometheus의 스크랩 주소(__address__)로 교체
+      - source_labels: [ __meta_ec2_private_ip ]
+        regex: '(.*)'             # 프라이빗 IP 주소 전체를 식별
+        replacement: '${1}:15692' # 캡처한 IP에 15692 포트 붙이기
+        target_label: __address__
