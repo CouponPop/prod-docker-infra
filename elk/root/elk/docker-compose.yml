@@ -45,7 +45,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 1m # Logstash는 시작 시간이 길기 때문에 충분한 시간을 줍니다.
+      start_period: 10m # Logstash는 시작 시간이 길기 때문에 충분한 시간을 줍니다.
     networks:
       - elk_network
 
