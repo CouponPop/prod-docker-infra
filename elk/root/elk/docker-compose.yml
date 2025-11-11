@@ -4,6 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: elasticsearch
+    ports:
+      - "9200:9200"
     environment:
       # 아래 설정은 개발/테스트 환경에서 간단하게 테스트하기 위한 옵션 (운영 환경에서는 설정하면 안 됨)
       - discovery.type=single-node # 단일 노드 (지금은 알 필요 없음)
@@ -20,14 +22,15 @@ services:
     container_name: logstash
     ports:
       - "9600:9600" # Logstash 모니터링 API
+      - "5044:5044"
     volumes:
       - ../logstash/pipeline:/usr/share/logstash/pipeline
       - ../logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
-    command: [ "sh", "-c", "logstash-plugin install logstash-input-cloudwatch && /usr/local/bin/docker-entrypoint" ]
     environment:
       - ELASTICSEARCH_HOSTS=http://elastic:9200
+      - LS_JAVA_OPTS="-Xms1g -Xmx1g"
     depends_on:
       - elastic
     networks:
@@ -61,6 +64,7 @@ services:
     environment:
       - ELASTICSEARCH_HOSTS=http://elastic:9200 # kibana가 통신할 Elasticsearch 주소 알려주기
       - TZ=Asia/Seoul
+      - NODE_OPTIONS="--max-old-space-size=1024" #
     depends_on:
       - elastic
     networks:
