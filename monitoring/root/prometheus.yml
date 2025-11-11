@@ -8,10 +8,15 @@ scrape_configs:
     static_configs:
       - targets: [ "localhost:9090" ]
 
-  # 2. Docker Compose 내부의 mysqld_exporter
-  - job_name: "mysql-exporter"
+  # 2. Docker Compose 내부의 mysql-master-exporter
+  - job_name: "mysql-exporter-master"
     static_configs:
-      - targets: [ "mysqld_exporter:9104" ]
+      - targets: [ "mysqld_exporter_master:9104" ]
+
+  # 3. Docker Compose 내부의 mysql-slave-exporter
+  - job_name: "mysql-exporter-slave"
+    static_configs:
+      - targets: [ "mysqld_exporter_slave:9104" ]
 
   # 3. Fargate 서비스 (teralytics/prometheus-ecs-discovery 사용)
   - job_name: 'fargate-services'

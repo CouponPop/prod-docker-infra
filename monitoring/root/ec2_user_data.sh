@@ -159,6 +159,8 @@ if [ -z "$GIT_TOKEN" ]; then exit 1; fi
 declare -A PARAM_MAP
 PARAM_MAP["/couponpop/prod/grafana-admin-pass"]="GRAFANA_ADMIN_PASSWORD"
 PARAM_MAP["/couponpop/prod/db-host"]="DB_HOST"
+PARAM_MAP["/couponpop/prod/db-host/master"]="DB_HOST_MASTER"
+PARAM_MAP["/couponpop/prod/db-host/slave"]="DB_HOST_SLAVE"
 PARAM_MAP["/couponpop/prod/db-port"]="DB_PORT"
 PARAM_MAP["/couponpop/prod/mysqld-exporter-user"]="MYSQLD_EXPORTER_USERNAME"
 PARAM_MAP["/couponpop/prod/mysqld-exporter-pass"]="MYSQLD_EXPORTER_PASSWORD"

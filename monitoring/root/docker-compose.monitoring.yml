@@ -13,11 +13,12 @@ services:
       - /data/prometheus:/prometheus                   # (2) 데이터 저장 (EBS 볼륨)
       - ./targets:/etc/prometheus/targets # ecs_discovery와 공유
     ports:
-      - "${PROMETHEUS_PORT}:9090"
+      - "9090:9090"
     entrypoint: [ "sh", "-c", "chown -R 65534:65534 /prometheus && /bin/prometheus --config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --storage.tsdb.retention.time=7d --web.enable-lifecycle" ]
     user: "root" # chown 명령을 실행하기 위해 root 권한으로 시작
     depends_on:
-      - mysqld_exporter
+      - mysqld_exporter_master
+      - mysqld_exporter_slave
       - ecs_discovery
 
   ecs_discovery:
@@ -45,19 +46,19 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning # (2) 설정 파일
       - ./grafana/dashboards:/var/lib/grafana/dashboards # (3) 대시보드 파일
     ports:
-      - "${GRAFANA_PORT}:3000"
+      - "3000:3000"
     entrypoint: [ "sh", "-c", "chown -R 472:472 /var/lib/grafana && /run.sh" ]
     user: "root" # chown 명령을 실행하기 위해 root 권한으로 시작
     depends_on:
       - prometheus
 
-  mysqld_exporter:
+  mysqld_exporter_master:
     image: prom/mysqld-exporter
-    container_name: couponpop-mysqld-exporter
+    container_name: couponpop-mysqld-exporter-master
     restart: unless-stopped
     command:
       - --mysqld.username=${MYSQLD_EXPORTER_USERNAME}
-      - --mysqld.address=${DB_HOST}:${DB_PORT}
+      - --mysqld.address=${DB_HOST_MASTER}:3306
       # 원하는 수집 항목을 로컬과 동일하게 유지
       - --collect.global_status
       - --collect.engine_innodb_status
@@ -67,4 +68,22 @@ services:
     environment:
       MYSQLD_EXPORTER_PASSWORD: ${MYSQLD_EXPORTER_PASSWORD}
     ports:
-      - "${MYSQLD_EXPORTER_PORT}:9104"
+      - "9104:9104"
+
+  mysqld_exporter_slave:
+    image: prom/mysqld-exporter
+    container_name: couponpop-mysqld-exporter-slave
+    restart: unless-stopped
+    command:
+      - --mysqld.username=${MYSQLD_EXPORTER_USERNAME}
+      - --mysqld.address=${DB_HOST_SLAVE}:3306
+      # 원하는 수집 항목을 로컬과 동일하게 유지
+      - --collect.global_status
+      - --collect.engine_innodb_status
+      - --collect.info_schema.userstats
+      - --collect.perf_schema.tableiowaits
+      - --collect.perf_schema.file_events
+    environment:
+      MYSQLD_EXPORTER_PASSWORD: ${MYSQLD_EXPORTER_PASSWORD}
+    ports:
+      - "9105:9104"
