@@ -25,7 +25,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 4,
+  "id": 3,
   "links": [
     {
       "icon": "doc",
@@ -6740,7 +6740,8 @@
         "x": 0,
         "y": 16
       },
-      "id": 75,
+      "id": 78,
+      "maxPerRow": 6,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
@@ -6755,148 +6756,23 @@
           "values": false
         },
         "showPercentChange": false,
-        "textMode": "value",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.2.1",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "rabbitmq_queue_messages_ready{instance=\"10.0.70.103:15692\", job=\"rabbitmq\", queue=\"coupon.queue.issued.dlq\", vhost=\"/\"}",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "발급"
-        }
-      ],
-      "title": "쿠폰 발급 DLQ",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 20
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 3,
-        "x": 3,
-        "y": 16
-      },
-      "id": 76,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
+        "text": {},
         "textMode": "auto",
         "wideLayout": true
       },
       "pluginVersion": "12.2.1",
+      "repeat": "queue",
+      "repeatDirection": "h",
       "targets": [
         {
           "editorMode": "code",
-          "expr": "rabbitmq_queue_messages_ready{instance=\"10.0.70.103:15692\", job=\"rabbitmq\", queue=\"coupon.queue.used.dlq\", vhost=\"/\"}",
+          "expr": "rabbitmq_queue_messages_ready{\r\n  instance=\"couponpop-rabbitmq:15692\",\r\n  job=\"rabbitmq\",\r\n  queue=\"$queue\",\r\n  vhost=\"/\"\r\n}",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
         }
       ],
-      "title": "쿠폰 사용 DLQ",
-      "type": "stat"
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
-      },
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": 0
-              },
-              {
-                "color": "red",
-                "value": 80
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 6,
-        "y": 16
-      },
-      "id": 77,
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "justifyMode": "auto",
-        "orientation": "auto",
-        "percentChangeColorMode": "standard",
-        "reduceOptions": {
-          "calcs": [
-            "lastNotNull"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showPercentChange": false,
-        "textMode": "auto",
-        "wideLayout": true
-      },
-      "pluginVersion": "12.2.1",
-      "targets": [
-        {
-          "editorMode": "code",
-          "expr": "rabbitmq_queue_messages_ready{instance=\"10.0.70.103:15692\", job=\"rabbitmq\", queue=\"coupon.usage.stats.fcm.send.dlq.v1\", vhost=\"/\"}",
-          "legendFormat": "__auto",
-          "range": true,
-          "refId": "A"
-        }
-      ],
-      "title": "쿠폰 사용 통계 알림 DLQ",
+      "title": "$queue",
       "type": "stat"
     },
     {
@@ -6905,7 +6781,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 19
       },
       "id": 51,
       "panels": [
@@ -7704,7 +7580,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 21
+        "y": 20
       },
       "id": 46,
       "panels": [
@@ -8598,6 +8474,26 @@
         "regex": "",
         "sort": 1,
         "type": "query"
+      },
+      {
+        "current": {
+          "text": "",
+          "value": ""
+        },
+        "definition": "label_values(rabbitmq_queue_messages_ready{job=\"rabbitmq\", queue=~\".*dlq.*\"},queue)",
+        "hide": 2,
+        "includeAll": true,
+        "multi": true,
+        "name": "queue",
+        "options": [],
+        "query": {
+          "qryType": 1,
+          "query": "label_values(rabbitmq_queue_messages_ready{job=\"rabbitmq\", queue=~\".*dlq.*\"},queue)",
+          "refId": "PrometheusVariableQueryEditor-VariableQuery"
+        },
+        "refresh": 1,
+        "regex": "",
+        "type": "query"
       }
     ]
   },
@@ -8617,5 +8513,5 @@
   "timezone": "",
   "title": "RabbitMQ-Overview",
   "uid": "Kn5xm-gZk",
-  "version": 1
+  "version": 19
 }
