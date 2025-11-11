@@ -25,7 +25,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
-  "id": 1,
+  "id": 4,
   "links": [
     {
       "icon": "doc",
@@ -6762,7 +6762,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "rabbitmq_queue_messages_ready{instance=\"couponpop-rabbitmq:15692\", job=\"rabbitmq\", queue=\"coupon.queue.issued.dlq\", vhost=\"/\"}",
+          "expr": "rabbitmq_queue_messages_ready{instance=\"10.0.70.103:15692\", job=\"rabbitmq\", queue=\"coupon.queue.issued.dlq\", vhost=\"/\"}",
           "legendFormat": "__auto",
           "range": true,
           "refId": "발급"
@@ -6826,7 +6826,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "rabbitmq_queue_messages_ready{instance=\"couponpop-rabbitmq:15692\", job=\"rabbitmq\", queue=\"coupon.queue.used.dlq\", vhost=\"/\"}",
+          "expr": "rabbitmq_queue_messages_ready{instance=\"10.0.70.103:15692\", job=\"rabbitmq\", queue=\"coupon.queue.used.dlq\", vhost=\"/\"}",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -6864,7 +6864,7 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 3,
+        "w": 4,
         "x": 6,
         "y": 16
       },
@@ -6890,7 +6890,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "rabbitmq_queue_messages_ready{instance=\"couponpop-rabbitmq:15692\", job=\"rabbitmq\", queue=\"coupon.usage.stats.fcm.send.dlq\", vhost=\"/\"}",
+          "expr": "rabbitmq_queue_messages_ready{instance=\"10.0.70.103:15692\", job=\"rabbitmq\", queue=\"coupon.usage.stats.fcm.send.dlq.v1\", vhost=\"/\"}",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
