@@ -1,5 +1,2 @@
-# 주 설정: 모든 인터페이스에서 HTTP/TCP 연결 수신
-http.host: "0.0.0.0"
-
 # [선택적 추가] Logstash 자체 모니터링 활성화
 xpack.monitoring.elasticsearch.hosts: [ "http://elastic:9200" ]

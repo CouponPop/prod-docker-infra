@@ -14,7 +14,8 @@ filebeat.inputs:
     multiline.match: after
     multiline.max_lines: 500
     # 로그 파일 스캔 간격
-    scan_frequency: 10s
+    scan_frequency: 15s
+    start_position: end
 
 # Logstash로 전송
 output.logstash:
