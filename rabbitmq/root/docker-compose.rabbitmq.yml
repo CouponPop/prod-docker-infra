@@ -5,7 +5,7 @@ services:
     hostname: ${RABBITMQ_HOSTNAME}
     volumes:
       - /data/rabbitmq-data:/var/lib/rabbitmq # EBS 볼륨 마운트 지점으로 변경
-      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf # config/ 서브디렉토리 제거
+      - ./config/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf
     ports:
       # 포트 기본값을 사용하도록 고정
       - "5672:5672"
