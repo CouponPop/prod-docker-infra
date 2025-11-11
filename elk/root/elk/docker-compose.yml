@@ -16,12 +16,6 @@ services:
       - elasticsearch_data:/usr/share/elasticsearch/data
     networks:
       - elk_network
-    healthcheck:
-      test: [ "CMD-SHELL", "curl --fail http://localhost:9200/_cluster/health || exit 1" ]
-      interval: 10s
-      timeout: 10s
-      retries: 5
-      start_period: 20s
 
   logstash:
     image: docker.elastic.co/logstash/logstash:8.17.4
@@ -38,14 +32,7 @@ services:
       - ELASTICSEARCH_HOSTS=http://elastic:9200
       - LS_JAVA_OPTS=-Xms1g -Xmx1g
     depends_on:
-      elastic:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD-SHELL", "curl -f http://localhost:9600/_node/status || exit 1" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10m # Logstash는 시작 시간이 길기 때문에 충분한 시간을 줍니다.
+      - elastic
     networks:
       - elk_network
 
@@ -61,8 +48,7 @@ services:
       - LOGSTASH_HOSTS=logstash:5044
       - ELASTICSEARCH_HOSTS=http://elastic:9200
     depends_on:
-      logstash:
-        condition: service_healthy
+      - logstash
     networks:
       - elk_network
     restart: unless-stopped
@@ -80,8 +66,7 @@ services:
       - TZ=Asia/Seoul
       - NODE_OPTIONS=--max-old-space-size=1024 #
     depends_on:
-      elastic:
-        condition: service_healthy
+      - elastic
     networks:
       - elk_network
 
