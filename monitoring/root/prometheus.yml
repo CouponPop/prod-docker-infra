@@ -34,7 +34,6 @@ scrape_configs:
     metrics_path: /metrics
     ec2_sd_configs:
       - region: ap-northeast-2
-        port: 15692
 
     relabel_configs: # 필터링 및 주소 설정
       # 1단계: Role=rabbitmq 태그가 있는 인스턴스만 유지
@@ -48,3 +47,11 @@ scrape_configs:
         regex: '(.*)'             # 프라이빗 IP 주소 전체를 식별
         replacement: '${1}:15692' # 캡처한 IP에 15692 포트 붙이기
         target_label: __address__
+
+      - source_labels: [ ] # 소스 없음 (상수 값 추가)
+        replacement: 'rabbit@couponpop-rabbitmq' # Grafana 변수와 일치하는 값
+        target_label: rabbitmq_cluster
+
+      - source_labels: [ ]
+        target_label: namespace
+        replacement: 'couponpop-prod'
