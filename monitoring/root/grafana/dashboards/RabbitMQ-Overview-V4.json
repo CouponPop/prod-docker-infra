@@ -6766,7 +6766,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "rabbitmq_queue_messages_ready{\r\n  instance=\"couponpop-rabbitmq:15692\",\r\n  job=\"rabbitmq\",\r\n  queue=~\"$queue\",\r\n  vhost=\"/\"\r\n}",
+          "expr": "sum(\r\n  rabbitmq_queue_messages_ready{\r\n    job=\"rabbitmq\",\r\n    queue=~\"$queue\",\r\n    vhost=\"/\"\r\n  }\r\n  * on(instance, job) group_left(rabbitmq_cluster)\r\n    rabbitmq_identity_info{\r\n      rabbitmq_cluster=\"$rabbitmq_cluster\",\r\n      namespace=\"$namespace\",\r\n      rabbitmq_endpoint=\"$endpoint\"\r\n    }\r\n)\r\n",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -8513,5 +8513,5 @@
   "timezone": "",
   "title": "RabbitMQ-Overview",
   "uid": "Kn5xm-gZk",
-  "version": 23
+  "version": 24
 }
