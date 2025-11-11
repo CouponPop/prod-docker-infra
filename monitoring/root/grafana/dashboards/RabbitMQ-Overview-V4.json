@@ -6736,7 +6736,7 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 3,
+        "w": 24,
         "x": 0,
         "y": 16
       },
@@ -6766,7 +6766,7 @@
       "targets": [
         {
           "editorMode": "code",
-          "expr": "rabbitmq_queue_messages_ready{\r\n  instance=\"couponpop-rabbitmq:15692\",\r\n  job=\"rabbitmq\",\r\n  queue=\"$queue\",\r\n  vhost=\"/\"\r\n}",
+          "expr": "rabbitmq_queue_messages_ready{\r\n  instance=\"couponpop-rabbitmq:15692\",\r\n  job=\"rabbitmq\",\r\n  queue=~\"$queue\",\r\n  vhost=\"/\"\r\n}",
           "legendFormat": "__auto",
           "range": true,
           "refId": "A"
@@ -6781,7 +6781,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 19
+        "y": 20
       },
       "id": 51,
       "panels": [
@@ -7580,7 +7580,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 21
       },
       "id": 46,
       "panels": [
@@ -8513,5 +8513,5 @@
   "timezone": "",
   "title": "RabbitMQ-Overview",
   "uid": "Kn5xm-gZk",
-  "version": 19
+  "version": 23
 }
