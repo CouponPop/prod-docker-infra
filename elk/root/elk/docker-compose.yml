@@ -18,7 +18,8 @@ services:
   logstash:
     image: docker.elastic.co/logstash/logstash:8.17.4
     container_name: logstash
-      - 9600:9600 # Logstash 모니터링 API
+    ports:
+      - "9600:9600" # Logstash 모니터링 API
     volumes:
       - ../logstash/pipeline:/usr/share/logstash/pipeline
       - ../logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
@@ -53,7 +54,7 @@ services:
     image: docker.elastic.co/kibana/kibana:8.17.4 # 8.17.4 버전
     container_name: kibana
     ports:
-      - 5601:5601 # 5601번 포트에서 kibana 실행
+      - "5601:5601" # 5601번 포트에서 kibana 실행
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
