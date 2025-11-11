@@ -36,7 +36,7 @@ services:
       - /etc/timezone:/etc/timezone:ro
     environment:
       - ELASTICSEARCH_HOSTS=http://elastic:9200
-      - LS_JAVA_OPTS="-Xms1g -Xmx1g"
+      - LS_JAVA_OPTS=-Xms1g -Xmx1g
     depends_on:
       elastic:
         condition: service_healthy
@@ -78,7 +78,7 @@ services:
     environment:
       - ELASTICSEARCH_HOSTS=http://elastic:9200 # kibana가 통신할 Elasticsearch 주소 알려주기
       - TZ=Asia/Seoul
-      - NODE_OPTIONS="--max-old-space-size=1024" #
+      - NODE_OPTIONS=--max-old-space-size=1024 #
     depends_on:
       elastic:
         condition: service_healthy
