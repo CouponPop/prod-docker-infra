@@ -1,10 +1,7 @@
 filebeat.inputs:
   # 애플리케이션 로그 수집
-  - type: log
-    enabled: true
-    paths:
-     - /logs/*.log
-     - /logs/**/*.log
+  - type: aws-cloudwatch
+    log_group_name: /ecs/couponpop-store-service-task-definition
     fields:
       log_type: application
       service: couponpop-store-service
@@ -20,7 +17,7 @@ filebeat.inputs:
 
 # Logstash로 전송
 output.logstash:
-  hosts: ["logstash:5044"]
+  hosts: [ "localhost:5044" ]
   # 연결 실패 시 재시도
   bulk_max_size: 2048
 

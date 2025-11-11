@@ -4,8 +4,6 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: elasticsearch
-    ports:
-      - 9200:9200 # 9200번 포트에서 Elasticsearch 실행
     environment:
       # 아래 설정은 개발/테스트 환경에서 간단하게 테스트하기 위한 옵션 (운영 환경에서는 설정하면 안 됨)
       - discovery.type=single-node # 단일 노드 (지금은 알 필요 없음)
@@ -20,7 +18,6 @@ services:
   logstash:
     image: docker.elastic.co/logstash/logstash:8.17.4
     container_name: logstash
-    ports:
       - 9600:9600 # Logstash 모니터링 API
     volumes:
       - ../logstash/pipeline:/usr/share/logstash/pipeline
@@ -35,6 +32,22 @@ services:
     networks:
       - elk_network
 
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:8.17.4
+    container_name: filebeat
+    user: root
+    command: [ "filebeat", "-e", "--strict.perms=false" ]
+    volumes:
+      - ../filebeat/config/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro
+      - filebeat_data:/usr/share/filebeat/data
+    environment:
+      - LOGSTASH_HOSTS=logstash:5044
+      - ELASTICSEARCH_HOSTS=http://elastic:9200
+    depends_on:
+      - logstash
+    networks:
+      - elk_network
+    restart: unless-stopped
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.17.4 # 8.17.4 버전
@@ -54,6 +67,18 @@ services:
 
 volumes:
   elasticsearch_data:
+    driver: local
+    driver_opts:
+      type: 'none'
+      device: '/data/elasticsearch_data'
+      o: 'bind'
+  filebeat_data:
+    driver: local
+    driver_opts:
+      type: 'none'
+      device: '/data/filebeat_data'
+      o: 'bind'
+
 
 networks:
   elk_network:
