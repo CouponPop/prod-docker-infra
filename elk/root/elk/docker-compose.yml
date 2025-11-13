@@ -11,7 +11,7 @@ services:
       - discovery.type=single-node # 단일 노드 (지금은 알 필요 없음)
       - xpack.security.enabled=false # 보안 설정
       - xpack.security.http.ssl.enabled=false # 보안 설정
-      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+      - ES_JAVA_OPTS=-Xms2560m -Xmx2560m
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
     networks:
@@ -30,7 +30,7 @@ services:
       - /etc/timezone:/etc/timezone:ro
     environment:
       - ELASTICSEARCH_HOSTS=http://elastic:9200
-      - LS_JAVA_OPTS=-Xms1g -Xmx1g
+      - LS_JAVA_OPTS=-Xms2g -Xmx2g
     depends_on:
       - elastic
     networks:
@@ -83,7 +83,6 @@ volumes:
       type: 'none'
       device: '/data/filebeat_data'
       o: 'bind'
-
 
 networks:
   elk_network:
